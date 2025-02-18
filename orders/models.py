@@ -17,5 +17,18 @@ class CustomUser(AbstractUser):
         max_length=10, choices=ROLE_CHOICES, default=WAITER
     )
 
+    class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ['username']
+
     def __str__(self):
         return self.username
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN or self.is_superuser
+
+    @property
+    def is_chef(self):
+        return self.role == self.CHEF
