@@ -1,0 +1,29 @@
+<form method="get" class="mb-4 card card-body">
+  <div class="row g-2">
+    <div class="col-md-3">
+      <input type="number" 
+            name="table_number" 
+            class="form-control" 
+            placeholder="Номер стола"
+            min="1"
+            value="{{ request.GET.table_number }}">
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select">
+        <option value="">Все статусы</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" 
+            {% if request.GET.status == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Поиск</button>
+    </div>
+    <div class="col-md-2">
+      <a href="{% url 'orders:list' %}" class="btn btn-outline-secondary w-100">Сброс</a>
+    </div>
+  </div>
+</form>

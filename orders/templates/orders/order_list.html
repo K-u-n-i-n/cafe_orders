@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <h1>Заказы</h1>
+  <div>
+    {% comment %} <a href="{% url 'orders:create' %}" class="btn btn-success">Новый заказ</a> {% endcomment %}
+    {% comment %} <a href="{% url 'orders:revenue' %}" class="btn btn-info">Выручка</a> {% endcomment %}
+  </div>
+</div>
+
+{% include 'includes/search_form.html' %}
+{% include 'includes/orders_table.html' %}
+{% include 'includes/pagination.html' %}
+{% endblock %}
