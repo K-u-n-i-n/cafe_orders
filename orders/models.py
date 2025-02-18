@@ -35,6 +35,10 @@ class CustomUser(AbstractUser):
     def is_chef(self):
         return self.role == self.CHEF
 
+    @property
+    def is_waiter(self):
+        return self.role == self.WAITER
+
 
 class Dish(models.Model):
     name = models.CharField(max_length=100)
