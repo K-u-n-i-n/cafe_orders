@@ -32,3 +32,16 @@ class CustomUser(AbstractUser):
     @property
     def is_chef(self):
         return self.role == self.CHEF
+
+
+class Dish(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'блюдо'
+        verbose_name_plural = 'Блюда'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
