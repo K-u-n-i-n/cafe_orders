@@ -42,6 +42,7 @@ class OrderListView(
     model = Order
     paginate_by = 10
     context_object_name = 'orders'
+    ordering = ['-id']
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('order_items__dish')
