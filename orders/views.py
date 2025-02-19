@@ -48,6 +48,26 @@ class OrderCreateView(
     # WaiterRequiredMixin,
     CreateView
 ):
+    """
+    OrderCreateView отображает форму для создания нового заказа.
+
+    Атрибуты:
+        model (Order): Модель, связанная с этим представлением.
+        form_class (OrderCreateForm): Класс формы, используемый для
+            создания заказа.
+        template_name (str): Шаблон, используемый для отображения
+            представления.
+        success_url (str): URL для перенаправления после успешной отправки
+            формы.
+    Методы:
+        get_context_data(**kwargs):
+            Добавляет OrderItemFormSet в данные контекста.
+        form_valid(form):
+            Проверяет форму и formset, сохраняет заказ и его элементы,
+                пересчитывает итоговую сумму, и отображает сообщение об
+                успешном создании.
+    """
+
     model = Order
     form_class = OrderCreateForm
     template_name = 'orders/order_create.html'
