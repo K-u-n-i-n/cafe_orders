@@ -21,10 +21,15 @@ class OrderCreateForm(forms.ModelForm):
         }
 
 
-class OrderItemForm(forms.ModelForm):
-    class Meta:
-        model = OrderItem
-        fields = ('dish', 'quantity')
+OrderItemFormSet = forms.inlineformset_factory(
+    Order,
+    OrderItem,
+    fields=('dish', 'quantity'),
+    extra=1,
+    widgets={
+        'quantity': forms.NumberInput(attrs={'min': 1})
+    }
+)
 
 
 class OrderStatusForm(forms.ModelForm):
