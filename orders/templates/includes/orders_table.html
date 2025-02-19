@@ -40,7 +40,7 @@
             </a>
             {% endif %} {% endcomment %}
             
-            {% comment %} {% if user.role == 'waiter' or user.is_admin %}
+            {% if user.role == 'waiter' or user.is_admin %}
             <form method="post" 
                 action="{% url 'orders:delete' order.pk %}">
               {% csrf_token %}
@@ -50,7 +50,7 @@
                 Удалить
               </button>
             </form>
-            {% endif %} {% endcomment %}
+            {% endif %}
           </div>
         </td>
       </tr>

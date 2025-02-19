@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DeleteView, ListView
 
 from .forms import OrderCreateForm, OrderItemFormSet, OrderSearchForm
 from .models import Order
@@ -92,3 +92,28 @@ class OrderCreateView(
             messages.success(self.request, 'Заказ успешно создан')
             return super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class OrderDeleteView(
+    # WaiterRequiredMixin,
+    DeleteView
+):
+    """
+    OrderDeleteView отвечает за удаление заказов.
+
+    Атрибуты:
+        model (Order): Модель, с которой работает представление.
+        success_url (str): URL, на который будет перенаправлен пользователь
+            после успешного удаления заказа.
+    Методы:
+        delete(request, *args, **kwargs): Обрабатывает запрос на удаление
+            заказа, выводит сообщение об успешном удалении и вызывает метод
+            delete родительского класса.
+    """
+
+    model = Order
+    success_url = reverse_lazy('orders:list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Заказ успешно удален')
+        return super().delete(request, *args, **kwargs)
