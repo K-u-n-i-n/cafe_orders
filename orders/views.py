@@ -1,7 +1,10 @@
-from django.views.generic import ListView
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView
 
+from .forms import OrderCreateForm, OrderItemFormSet, OrderSearchForm
 from .models import Order
-from .forms import OrderSearchForm
+
 # from .mixins import WaiterRequiredMixin
 
 
@@ -40,3 +43,32 @@ class OrderListView(
 
         return qs
 
+
+class OrderCreateView(
+    # WaiterRequiredMixin,
+    CreateView
+):
+    model = Order
+    form_class = OrderCreateForm
+    template_name = 'orders/order_create.html'
+    success_url = reverse_lazy('orders:list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = OrderItemFormSet(self.request.POST)
+        else:
+            context['formset'] = OrderItemFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            self.object.recalc_total()
+            messages.success(self.request, 'Заказ успешно создан')
+            return super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
