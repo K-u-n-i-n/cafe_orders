@@ -44,6 +44,11 @@ class OrderListView(
     context_object_name = 'orders'
     ordering = ['-id']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = Order.ORDER_STATUS_CHOICES
+        return context
+
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('order_items__dish')
         form = OrderSearchForm(self.request.GET)
