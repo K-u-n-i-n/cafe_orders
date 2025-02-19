@@ -1,8 +1,18 @@
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    ListView,
+    UpdateView
+)
 
-from .forms import OrderCreateForm, OrderItemFormSet, OrderSearchForm
+from .forms import (
+    OrderCreateForm,
+    OrderItemFormSet,
+    OrderSearchForm,
+    OrderStatusForm
+)
 from .models import Order
 
 # from .mixins import WaiterRequiredMixin
@@ -117,3 +127,33 @@ class OrderDeleteView(
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Заказ успешно удален')
         return super().delete(request, *args, **kwargs)
+
+
+class OrderStatusUpdateView(
+    # ChefRequiredMixin,
+    UpdateView
+):
+    """
+    OrderStatusUpdateView отвечает за обновление статуса заказа.
+
+    Атрибуты:
+        model (Order): Модель, с которой работает представление.
+        form_class (OrderStatusForm): Форма для обновления статуса заказа.
+        template_name (str): Путь к шаблону, используемому для отображения
+            формы.
+        success_url (str): URL, на который будет перенаправлен пользователь
+            после успешного обновления статуса заказа.
+    Методы:
+        form_valid(self, form): Обрабатывает успешное обновление формы,
+            отображает сообщение об успешном обновлении статуса заказа и
+            вызывает родительский метод form_valid.
+    """
+
+    model = Order
+    form_class = OrderStatusForm
+    template_name = 'orders/order_status_form.html'
+    success_url = reverse_lazy('orders:list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Статус заказа обновлен')
+        return super().form_valid(form)

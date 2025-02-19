@@ -24,29 +24,29 @@
         </td>
         <td>{{ order.total_price }} ₽</td>
         <td>
-          <span class="badge 
-            {% if order.status == 'pending' %}bg-warning
-            {% elif order.status == 'ready' %}bg-success
-            {% else %}bg-primary{% endif %}">
+          <span
+            class="badge {% if order.status == 'pending' %}bg-warning {% elif order.status == 'ready' %}bg-success {% else %}bg-primary{% endif %}"
+          >
             {{ order.get_status_display }}
           </span>
         </td>
         <td>
           <div class="d-flex gap-2">
-            {% comment %} {% if user.is_chef or user.is_admin %}
-            <a href="{% url 'orders:update_status' order.pk %}" 
-              class="btn btn-sm btn-outline-primary">
+            {% if user.is_chef or user.is_admin %}
+            <a
+              href="{% url 'orders:update_status' order.pk %}"
+              class="btn btn-sm btn-outline-primary"
+            >
               Изменить статус
             </a>
-            {% endif %} {% endcomment %}
-            
-            {% if user.role == 'waiter' or user.is_admin %}
-            <form method="post" 
-                action="{% url 'orders:delete' order.pk %}">
+            {% endif %} {% if user.role == 'waiter' or user.is_admin %}
+            <form method="post" action="{% url 'orders:delete' order.pk %}">
               {% csrf_token %}
-              <button type="submit" 
-                  class="btn btn-sm btn-outline-danger"
-                  onclick="return confirm('Удалить заказ?')">
+              <button
+                type="submit"
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Удалить заказ?')"
+              >
                 Удалить
               </button>
             </form>
