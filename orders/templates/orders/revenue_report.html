@@ -1,0 +1,13 @@
+{% extends 'base.html' %} {% block content %}
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">Выручка за смену</h5>
+  </div>
+  <div class="card-body">
+    <div class="display-4 text-center">
+      {{ total_revenue|default:"0.00" }} ₽
+    </div>
+    <div class="text-center text-muted mt-3">Только оплаченные заказы</div>
+  </div>
+</div>
+{% endblock %}

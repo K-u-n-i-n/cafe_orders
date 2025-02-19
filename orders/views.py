@@ -1,9 +1,11 @@
 from django.contrib import messages
+from django.db.models import Sum
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
     ListView,
+    TemplateView,
     UpdateView
 )
 
@@ -157,3 +159,28 @@ class OrderStatusUpdateView(
     def form_valid(self, form):
         messages.success(self.request, 'Статус заказа обновлен')
         return super().form_valid(form)
+
+
+class RevenueReportView(
+    # WaiterRequiredMixin,
+    TemplateView
+):
+    """
+    Представление для отчета о доходах.
+
+    Атрибуты:
+        template_name (str): Имя шаблона, используемого для отображения отчета
+            о доходах.
+    Методы:
+        get_context_data(**kwargs): Получает контекстные данные для шаблона,
+            включая общую сумму дохода.
+    """
+
+    template_name = 'orders/revenue_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        total = Order.objects.filter(
+            status=Order.PAID).aggregate(total=Sum('total_price'))
+        context['total_revenue'] = total['total'] or 0
+        return context
