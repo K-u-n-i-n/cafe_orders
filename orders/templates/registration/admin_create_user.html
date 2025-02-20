@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Создать нового пользователя</h2>
+<div class="card mb-4">
+  <div class="card-body">
+      <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Создать пользователя</button>
+    </form>
+  </div>
+</div>
+{% include 'includes/footer.html' %}
+{% endblock %}
