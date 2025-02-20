@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Order, OrderItem
+from .models import CustomUser, Order, OrderItem
 
 
 class OrderSearchForm(forms.Form):
@@ -36,3 +36,9 @@ class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['status']
+
+
+class AdminUserCreationForm(forms.Form):
+    username = forms.CharField(max_length=150, label='Имя пользователя')
+    password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
+    role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES, label='Роль')
