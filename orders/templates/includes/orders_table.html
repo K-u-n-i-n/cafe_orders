@@ -39,7 +39,7 @@
             >
               Изменить статус
             </a>
-            {% endif %} {% if user.role == 'waiter' or user.is_admin %}
+            {% endif %} {% if user.is_admin %}
             <form method="post" action="{% url 'orders:delete' order.pk %}">
               {% csrf_token %}
               <button
