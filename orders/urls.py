@@ -6,6 +6,7 @@ from .views import (
     OrderDeleteView,
     OrderListView,
     OrderStatusUpdateView,
+    OrderUpdateView,
     RevenueReportView
 )
 
@@ -20,6 +21,10 @@ urlpatterns = [
     path(
         '<int:pk>/status/', OrderStatusUpdateView.as_view(),
         name='update_status'
+    ),
+    path(
+        'order/<int:pk>/update/', OrderUpdateView.as_view(),
+        name='update'
     ),
     path(
         'admin-create-user/', AdminCreateUserView.as_view(),

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  input[type="checkbox"][name$="DELETE"] {
+    display: none;
+  }
+</style>
+<h1 class="mb-4">Изменение заказа №{{ object.id }}</h1>
+
+<form method="post" id="order-form">
+  {% csrf_token %}
+
+  <!-- Поля основного заказа -->
+  <div class="card mb-4">
+    <div class="card-body">
+      {{ form.table_number.label_tag }}
+      {{ form.table_number }}
+      {{ form.table_number.errors }}
+    </div>
+  </div>
+
+  <!-- Inline-formset для OrderItem -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-start">
+      <button type="button" class="btn btn-sm btn-outline-primary" onclick="addForm()">
+        + Добавить блюдо
+      </button>
+    </div>
+    <div class="card-body">
+      {{ formset.management_form }}
+      <div id="forms-container">
+        <div class="row g-3 mb-2">
+          <div class="col-md-6"><strong>Блюдо</strong></div>
+          <div class="col-md-4"><strong>Количество</strong></div>
+          <div class="col-md-2"></div>
+        </div>
+
+        {% for form in formset %}
+          <div class="row g-3 mb-3 form-row">
+            <!-- Скрытые поля для существующих объектов -->
+            {{ form.id }}
+            {{ form.DELETE }}
+
+            <!-- Основные поля -->
+            <div class="col-md-6">{{ form.dish }}</div>
+            <div class="col-md-4">{{ form.quantity }}</div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn btn-danger btn-sm delete-item-btn">
+                Удалить
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a href="{% url 'orders:list' %}" class="btn btn-outline-secondary">Отмена</a>
+  </div>
+</form>
+
+<!-- Шаблон для добавления новой формы -->
+<div id="empty-form" style="display: none">
+  <div class="row g-3 mb-3 form-row">
+    {{ formset.empty_form.id }}
+    {{ formset.empty_form.DELETE }}
+    <div class="col-md-6">{{ formset.empty_form.dish }}</div>
+    <div class="col-md-4">{{ formset.empty_form.quantity }}</div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="button" class="btn btn-danger btn-sm delete-item-btn">Удалить</button>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const formsContainer = document.getElementById("forms-container");
+    const totalFormsInput = document.getElementById("{{ formset.management_form.TOTAL_FORMS.id_for_label }}");
+    const emptyFormHtml = document.getElementById("empty-form").innerHTML;
+
+    // Добавление нового блюда
+    window.addForm = function() {
+      const formCount = parseInt(totalFormsInput.value);
+      // Меняем __prefix__ на текущий индекс
+      let newRowHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = newRowHtml;
+      const newRow = tempDiv.firstElementChild;
+      formsContainer.appendChild(newRow);
+      totalFormsInput.value = formCount + 1;
+      reindexFormset();
+    };
+
+    // Помечаем на удаление
+    formsContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("delete-item-btn")) {
+        const row = e.target.closest(".form-row");
+        const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="DELETE"]');
+        if (deleteCheckbox) {
+          deleteCheckbox.checked = true;
+          row.style.display = "none";
+        } else {
+          row.remove();
+          reindexFormset();
+        }
+      }
+    });
+
+    // Пересчёт индексов
+    function reindexFormset() {
+      const rows = formsContainer.querySelectorAll(".form-row");
+      rows.forEach((row, index) => {
+        row.querySelectorAll("input, select, label").forEach((el) => {
+          if (el.name) el.name = el.name.replace(/-(\d+)-/, `-${index}-`);
+          if (el.id) el.id = el.id.replace(/-(\d+)-/, `-${index}-`);
+          if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/-(\d+)-/, `-${index}-`);
+        });
+      });
+      totalFormsInput.value = rows.length;
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}

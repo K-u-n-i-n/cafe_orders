@@ -184,6 +184,60 @@ class OrderStatusUpdateView(
         return super().form_valid(form)
 
 
+class OrderUpdateView(
+    LoginRequiredMixin,
+    AdminRequiredMixin,
+    UpdateView
+):
+    """
+    OrderUpdateView отображает форму для изменения заказа.
+
+    Атрибуты:
+        model (Order): Модель заказа.
+        form_class (OrderCreateForm): Форма для изменения заказа.
+        template_name (str): Шаблон для отображения формы.
+        success_url (str): URL перенаправления после успешного обновления.
+
+    Методы:
+        get_context_data(**kwargs):
+            Добавляет OrderItemFormSet в контекст.
+        form_valid(form):
+            Проверяет валидность формы и formset, сохраняет заказ и его
+                элементы, пересчитывает итоговую сумму и выводит сообщение
+                об успешном обновлении.
+    """
+
+    model = Order
+    form_class = OrderCreateForm
+    template_name = 'orders/order_update.html'
+    success_url = reverse_lazy('orders:list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = OrderItemFormSet(
+                self.request.POST, instance=self.object)
+        else:
+            context['formset'] = OrderItemFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            self.object.recalc_total()  # пересчёт итоговой суммы
+            messages.success(self.request, 'Заказ успешно обновлен')
+            return super().form_valid(form)
+        else:
+            messages.error(
+                self.request, 'Проверьте правильность заполнения формы.'
+            )
+            return self.render_to_response(self.get_context_data(form=form))
+
+
 class RevenueReportView(
     LoginRequiredMixin,
     AdminRequiredMixin,
