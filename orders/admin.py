@@ -5,7 +5,7 @@ from .models import CustomUser, Dish, Order, OrderItem
 
 @admin.register(CustomUser)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'email', 'role',)
+    list_display = ('id', 'username', 'role', 'email', 'password',)
     list_filter = ('role',)
     search_fields = ('username',)
     ordering = ('username',)

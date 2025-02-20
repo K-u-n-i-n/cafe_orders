@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -8,20 +9,25 @@ from django.views.generic import (
     TemplateView,
     UpdateView
 )
+from django.views.generic.edit import FormView
 
 from .forms import (
+    AdminUserCreationForm,
     OrderCreateForm,
     OrderItemFormSet,
     OrderSearchForm,
     OrderStatusForm
 )
-from .models import Order
-
-# from .mixins import WaiterRequiredMixin
+from .mixins import (
+    AdminRequiredMixin,
+    ChefOrAdminRequiredMixin,
+    WaiterOrAdminRequiredMixin
+)
+from .models import CustomUser, Order
 
 
 class OrderListView(
-    # WaiterRequiredMixin,
+    LoginRequiredMixin,
     ListView
 ):
     """
@@ -63,7 +69,8 @@ class OrderListView(
 
 
 class OrderCreateView(
-    # WaiterRequiredMixin,
+    LoginRequiredMixin,
+    WaiterOrAdminRequiredMixin,
     CreateView
 ):
     """
@@ -113,7 +120,8 @@ class OrderCreateView(
 
 
 class OrderDeleteView(
-    # WaiterRequiredMixin,
+    LoginRequiredMixin,
+    AdminRequiredMixin,
     DeleteView
 ):
     """
@@ -138,7 +146,8 @@ class OrderDeleteView(
 
 
 class OrderStatusUpdateView(
-    # ChefRequiredMixin,
+    LoginRequiredMixin,
+    ChefOrAdminRequiredMixin,
     UpdateView
 ):
     """
@@ -152,9 +161,9 @@ class OrderStatusUpdateView(
         success_url (str): URL, на который будет перенаправлен пользователь
             после успешного обновления статуса заказа.
     Методы:
-        form_valid(self, form): Обрабатывает успешное обновление формы,
-            отображает сообщение об успешном обновлении статуса заказа и
-            вызывает родительский метод form_valid.
+        form_valid(self, form): Проверяет, что повар не может установить
+            статус "Оплачен". Если попытка есть — возвращает ошибку.
+            Обрабатывает успешное обновление формы.
     """
 
     model = Order
@@ -163,12 +172,21 @@ class OrderStatusUpdateView(
     success_url = reverse_lazy('orders:list')
 
     def form_valid(self, form):
+        new_status = form.cleaned_data['status']
+
+        if self.request.user.is_chef and new_status == 'paid':
+            messages.error(
+                self.request,
+                'Вы не можете установить статус "Оплачено". Выберите другой.'
+            )
+            return self.form_invalid(form)
         messages.success(self.request, 'Статус заказа обновлен')
         return super().form_valid(form)
 
 
 class RevenueReportView(
-    # WaiterRequiredMixin,
+    LoginRequiredMixin,
+    AdminRequiredMixin,
     TemplateView
 ):
     """
@@ -190,3 +208,41 @@ class RevenueReportView(
             status=Order.PAID).aggregate(total=Sum('total_price'))
         context['total_revenue'] = total['total'] or 0
         return context
+
+
+class AdminCreateUserView(
+    LoginRequiredMixin,
+    AdminRequiredMixin,
+    FormView,
+):
+    """
+    Отвечает за создание нового пользователя администратором.
+
+    Атрибуты:
+        template_name (str): Имя шаблона, используемого для отображения формы
+            создания пользователя.
+        form_class (AdminUserCreationForm): Класс формы, используемый для
+            создания пользователя.
+        success_url (str): URL для перенаправления после успешного создания
+            пользователя.
+
+    Методы:
+        form_valid(self, form):
+            Обрабатывает успешное создание формы, создает нового пользователя
+                и отображает сообщение об успешном создании.
+    """
+
+    template_name = 'registration/admin_create_user.html'
+    form_class = AdminUserCreationForm
+    success_url = reverse_lazy('orders:admin_create_user')
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        role = form.cleaned_data['role']
+        user = CustomUser(username=username, role=role)
+        user.set_password(password)
+        user.save()
+        messages.success(
+            self.request, f'Пользователь {username} успешно создан.')
+        return super().form_valid(form)

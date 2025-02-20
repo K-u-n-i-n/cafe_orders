@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    AdminCreateUserView,
     OrderCreateView,
     OrderDeleteView,
     OrderListView,
@@ -19,5 +20,9 @@ urlpatterns = [
     path(
         '<int:pk>/status/', OrderStatusUpdateView.as_view(),
         name='update_status'
+    ),
+    path(
+        'admin-create-user/', AdminCreateUserView.as_view(),
+        name='admin_create_user'
     ),
 ]
