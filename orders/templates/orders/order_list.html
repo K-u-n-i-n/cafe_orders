@@ -6,8 +6,12 @@
 <div class="d-flex justify-content-between mb-4">
   <h1>Заказы</h1>
   <div>
-    <a href="{% url 'orders:create' %}" class="btn btn-success">Новый заказ</a>
-    <a href="{% url 'orders:revenue' %}" class="btn btn-info">Выручка</a>
+    {% if user.is_waiter or user.is_admin %}
+      <a href="{% url 'orders:create' %}" class="btn btn-success">Новый заказ</a>
+    {% endif %}
+    {% if user.is_admin %}      
+      <a href="{% url 'orders:revenue' %}" class="btn btn-info">Выручка</a>
+    {% endif %}
   </div>
 </div>
 
