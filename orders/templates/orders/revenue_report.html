@@ -12,9 +12,5 @@
     <div class="text-center text-muted mt-3">Только оплаченные заказы</div>
   </div>
 </div>
-<div class="mt-4">
-  <a href="{% url 'orders:list' %}" class="btn btn-primary"
-    >Список заказов</a
-  >
-</div>
+{% include 'includes/footer.html' %}
 {% endblock %}
