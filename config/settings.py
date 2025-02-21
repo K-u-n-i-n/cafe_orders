@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'orders.apps.OrdersConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
