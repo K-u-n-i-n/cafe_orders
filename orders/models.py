@@ -110,6 +110,12 @@ class OrderItem(models.Model):
         verbose_name = 'позиция заказа'
         verbose_name_plural = 'Позиции заказа'
         default_related_name = 'order_items'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('order', 'dish'),
+                name='unique_order_in_dish',
+            )
+        ]
 
     def __str__(self):
         return f'{self.dish.name} x {self.quantity}'

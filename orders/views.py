@@ -116,7 +116,11 @@ class OrderCreateView(
             self.object.recalc_total()
             messages.success(self.request, 'Заказ успешно создан')
             return super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
+        else:
+            for error in formset.non_form_errors():
+                error_text = str(error).replace('dish', 'Блюдо')
+                messages.error(self.request, error_text)
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 class OrderDeleteView(
@@ -232,9 +236,9 @@ class OrderUpdateView(
             messages.success(self.request, 'Заказ успешно обновлен')
             return super().form_valid(form)
         else:
-            messages.error(
-                self.request, 'Проверьте правильность заполнения формы.'
-            )
+            for error in formset.non_form_errors():
+                error_text = str(error).replace('dish', 'Блюдо')
+                messages.error(self.request, error_text)
             return self.render_to_response(self.get_context_data(form=form))
 
 
