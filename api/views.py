@@ -6,6 +6,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.viewsets import ModelViewSet
 
 from orders.models import Order
+from .filters import OrderFilter
 from .serializers import CustomUserSerializer, OrderSerializer
 
 
@@ -27,6 +28,7 @@ class OrderViewSet(ModelViewSet):
 
     queryset = Order.objects.all().prefetch_related('order_items__dish')
     serializer_class = OrderSerializer
+    filterset_class = OrderFilter
 
     @action(detail=True, methods=['patch'], url_path='change-status')
     def change_status(self, request, pk=None):
