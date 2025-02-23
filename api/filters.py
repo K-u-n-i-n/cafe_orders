@@ -10,7 +10,7 @@ class OrderFilter(filters.FilterSet):
     status = filters.ChoiceFilter(
         field_name='status',
         choices=Order.ORDER_STATUS_CHOICES
-    ),
+    )
 
     class Meta:
         model = Order

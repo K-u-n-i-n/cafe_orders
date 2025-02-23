@@ -3,8 +3,9 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class CustomOrderPermission(BasePermission):
     """
-    Права доступа:
+    Кастомный класс разрешений для заказов.
 
+    Права доступа:
     - Все авторизованные могут просматривать заказы (GET).
     - Официант и админ могут создавать заказы (POST).
     - Повар и админ могут менять статус (PATCH change-status).
