@@ -75,9 +75,10 @@ class OrderWriteSerializer(serializers.ModelSerializer):
         fields = ['table_number', 'order_items']
 
     def validate_table_number(self, value):
-        if value <= 0:
+        if not 1 <= value <= 50:
             raise serializers.ValidationError(
-                'Номер стола должен быть положительным.')
+                'Номер стола должен быть от 1 до 50.'
+            )
         return value
 
     def validate_order_items(self, value):

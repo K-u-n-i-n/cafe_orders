@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -63,7 +64,12 @@ class Order(models.Model):
         (READY, 'Готово'),
         (PAID, 'Оплачено'),
     ]
-    table_number = models.IntegerField()
+    table_number = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1, message='Номер стола должен быть не менее 1'),
+            MaxValueValidator(50, message='Номер стола не может превышать 50')
+        ]
+    )
     status = models.CharField(
         max_length=10,
         choices=ORDER_STATUS_CHOICES,
