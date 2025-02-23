@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
     ListView,
     TemplateView,
-    UpdateView
+    UpdateView,
 )
 from django.views.generic.edit import FormView
 
@@ -16,12 +17,12 @@ from .forms import (
     OrderCreateForm,
     OrderItemFormSet,
     OrderSearchForm,
-    OrderStatusForm
+    OrderStatusForm,
 )
 from .mixins import (
     AdminRequiredMixin,
     ChefOrAdminRequiredMixin,
-    WaiterOrAdminRequiredMixin
+    WaiterOrAdminRequiredMixin,
 )
 from .models import CustomUser, Order
 
@@ -304,3 +305,15 @@ class AdminCreateUserView(
         messages.success(
             self.request, f'Пользователь {username} успешно создан.')
         return super().form_valid(form)
+
+
+def page_not_found(request, exception):
+    """Страница 404"""
+
+    return render(request, 'pages/404.html', status=404)
+
+
+def server_error(request):
+    """Страница 500"""
+
+    return render(request, 'pages/500.html', status=500)
