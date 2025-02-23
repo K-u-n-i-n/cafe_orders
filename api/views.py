@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -5,6 +6,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from orders.models import Order
@@ -69,3 +71,14 @@ class OrderViewSet(ModelViewSet):
         order.recalc_total()
         order.save(update_fields=['status', 'total_price'])
         return Response({'status': order.get_status_display()})
+
+
+class RevenueReportAPIView(APIView):
+    """
+    API для расчета выручки за смену (сумма заказов со статусом "Оплачено").
+    """
+
+    def get(self, request):
+        total = Order.objects.filter(
+            status=Order.PAID).aggregate(total=Sum('total_price'))
+        return Response({'total_revenue': total['total'] or 0})
