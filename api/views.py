@@ -1,4 +1,6 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -7,7 +9,13 @@ from rest_framework.viewsets import ModelViewSet
 
 from orders.models import Order
 from .filters import OrderFilter
-from .serializers import CustomUserSerializer, OrderSerializer
+from .permissions import CustomOrderPermission
+from .serializers import (
+    CustomUserSerializer,
+    OrderReadSerializer,
+    OrderStatusSerializer,
+    OrderWriteSerializer,
+)
 
 
 class AdminUserCreateAPIView(CreateAPIView):
@@ -23,18 +31,27 @@ class AdminUserCreateAPIView(CreateAPIView):
 class OrderViewSet(ModelViewSet):
     """
     API для CRUD операций с заказами.
-    Поддерживается фильтрация по номеру стола и статусу.
+    Поддерживается фильтрация по номеру стола и статусу,
+    сортировка по id заказа, а также частичное обновление статуса заказа.
     """
 
     queryset = Order.objects.all().prefetch_related('order_items__dish')
-    serializer_class = OrderSerializer
+    serializer_class = OrderReadSerializer
     filterset_class = OrderFilter
+    permission_classes = [CustomOrderPermission]
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ['id']
+
+    def get_serializer_class(self):
+        if self.action == 'change_status':
+            return OrderStatusSerializer
+        if self.action in ['create', 'update', 'partial_update']:
+            return OrderWriteSerializer
+        return super().get_serializer_class()
 
     @action(detail=True, methods=['patch'], url_path='change-status')
     def change_status(self, request, pk=None):
-        """
-        Частичное обновление статуса заказа.
-        """
 
         order = self.get_object()
         new_status = request.data.get('status')
